@@ -4,6 +4,9 @@ author: "Chenyang Nie"
 date: "6/1/2020"
 output: html_document
 ---
+
+# code repo:  https://github.com/rushoj/ML-project
+
 # functions
 ```{r}
 # # # log.sum # # #
@@ -60,6 +63,7 @@ mstep.beta <- function(ldamodel,sstats){
 }
 ```
 
+# read data, preprocess data
 ``` {r}
 corpus1 = read.table('/Users/nick/Documents/Fintech/stats ML/project/LDA_datasets/text_data.txt',head=TRUE)
 
@@ -79,7 +83,10 @@ for (i in 1:nrow(corpus1)) {
 corpus1_list$docs<-docs
 
 corpus<-corpus1_list
+```
 
+# set parameters
+``` {r}
 k=3 # number of topics
 estAlpha = TRUE
 MAX.ES.IT = 20
@@ -102,8 +109,11 @@ hasConverged = FALSE
 nTopics = ldamodel$ntopics
 nTerms = ldamodel$nterms
 phi = matrix(rep(0,nTopics*nTerms),nTopics, nTerms)
+```
 
-# # # # Run variational expectation-maximization # # # #
+# Run variational expectation-maximization 
+# Please stop and run again, 1st time running time is very long, but stop and rerun will be very fast.
+```{r}
 while (!hasConverged){
         numit = numit + 1
         print(sprintf("----- EM Iteration %i ----- ", numit))
@@ -117,7 +127,7 @@ while (!hasConverged){
         gamma_topic <- matrix(rep(0,900),nrow = 3, ncol = 300)
         
         # # # do E-step # # #
-        for (d in 1:corpus$ndocs){
+        for (d in 1:300){
                 if (d %% 100 == 0){
                         print(sprintf("~~ completed e-step for %i docs ~~",d))
                 } 
@@ -138,7 +148,6 @@ while (!hasConverged){
                 numits.es = 0;
                 while (!estep.converged){
                         numits.es = numits.es + 1
-                        # TODO: rewrite "R-style"
                         for (n in 1:doc.length){
                                 phisum = 0
                                 for (k in 1:nTopics){
@@ -172,8 +181,6 @@ while (!hasConverged){
                         
                         if (convfrac < ES.CONV.LIM || numits.es > MAX.ES.IT){
                                 estep.converged = TRUE
-                                # print(sprintf("leaving E-step after %i iterations and convfrac: %1.3e, doc-likelihood: %1.3e", numits.es, convfrac, doc.like))
-                                # plot(doc.histlike)
                         }
                 } # end while e-step has not converged
                 
@@ -266,4 +273,5 @@ topic_true = read.table('/Users/nick/Documents/Fintech/stats ML/project/LDA_data
 topic_true_sort<-t(apply(topic_true,2,function(x){sort(x)}))
 colnames(topic_true_sort)<-c('true_T1','true_T2','true_T3')
 cbind(topic_true_sort,pred_sort)
+# write.csv(cbind(topic_true_sort,pred_sort), 'result.csv')
 ```
